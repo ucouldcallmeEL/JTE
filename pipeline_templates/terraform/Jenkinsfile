@@ -1,0 +1,30 @@
+/*
+  Plan on every branch; apply only from main, after a manual approval.
+  The approval waits inside node so tfplan stays in the workspace; the
+  timeout keeps it from holding the executor forever.
+*/
+node {
+    stage('Checkout') {
+        checkout scm
+    }
+    stage('Init') {
+        gcp_auth()
+        terraform_init()
+    }
+    stage('Checkov') {
+        checkov_scan()
+    }
+    stage('Plan') {
+        terraform_plan()
+    }
+    if (env.BRANCH_NAME == 'main') {
+        stage('Approve') {
+            timeout(time: 30, unit: 'MINUTES') {
+                input message: 'Apply this plan?'
+            }
+        }
+        stage('Apply') {
+            terraform_apply()
+        }
+    }
+}

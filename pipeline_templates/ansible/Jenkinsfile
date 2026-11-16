@@ -1,0 +1,12 @@
+node {
+    stage('Checkout') {
+        checkout scm
+    }
+    stage('Lint') {
+        ansible_lint()
+    }
+    stage('Run Playbook') {
+        gcp_auth()      // the gcp_compute inventory plugin queries GCP for hosts
+        run_playbook()
+    }
+}

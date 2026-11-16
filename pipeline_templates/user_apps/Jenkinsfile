@@ -1,0 +1,42 @@
+// /*
+//   Template for every user app. The child tier (go, node, python, dockerfile)
+//   decides which libraries implement install_dependencies/lint/unit_test
+//   and package_image.
+// */
+// node {
+//     devflow_stage('Checkout') {
+//         git_checkout();
+//     }
+//     devflow_stage('Build') {
+//         install_dependencies()
+//     }
+//     devflow_stage('Test') {
+//         lint()
+//         unit_test()
+//     }
+//     devflow_stage('Security Scan') {
+//         semgrep_scan()
+//         trivy_fs_scan()
+//     }
+//     devflow_stage('Package') {
+//         gcp_auth()
+//         artifact_registry_login('user-apps')
+//         package_image()
+//         trivy_image_scan()
+//     }
+//     devflow_stage('Deploy') {
+//         helm_lint()
+//         helm_deploy()
+//     }
+// }
+
+node {
+    devflow_stage('Checkout') {
+        env.GIT_COMMIT = git_checkout().GIT_COMMIT
+    }
+    devflow_stage('Build') {
+        install_dependencies()
+        sh 'echo "manager=$PYTHON_PACKAGE_MANAGER run=$PYTHON_RUN"; ls .venv/bin | head'   // debug, remove later
+    }
+    // Test / Security Scan / Package / Deploy: turned off until those steps exist
+}

@@ -1,0 +1,42 @@
+/*
+  Template for DevFlow's own services in the Website monorepo.
+  service_dir is a keyword set by the child tier ("backend" / "frontend").
+  Deploys only from main.
+*/
+node {
+    stage('Checkout') {
+        env.GIT_COMMIT = checkout(scm).GIT_COMMIT
+    }
+
+    if (!has_changes("${service_dir}/")) {
+        echo "No changes under ${service_dir}/, nothing to build."
+        currentBuild.result = 'NOT_BUILT'
+        return
+    }
+
+    dir(service_dir) {
+        stage('Build') {
+            install_dependencies()
+        }
+        stage('Test') {
+            lint()
+            unit_test()
+        }
+        stage('Security Scan') {
+            semgrep_scan()
+            trivy_fs_scan()
+        }
+        stage('Package') {
+            gcp_auth()
+            artifact_registry_login('platform')
+            package_image()
+            trivy_image_scan()
+        }
+        if (env.BRANCH_NAME == 'main') {
+            stage('Deploy') {
+                helm_lint()
+                helm_deploy()
+            }
+        }
+    }
+}
