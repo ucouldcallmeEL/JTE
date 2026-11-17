@@ -58,6 +58,10 @@ void call() {
             }
             env.PYTHON_RUN = '.venv/bin/python -m'
             break
+        case 'none':
+            sh 'python3 -m venv .venv'
+            env.PYTHON_RUN = '.venv/bin/python -m'
+            break
     }
 }
 
@@ -74,7 +78,9 @@ String detect_package_manager() {
     if (fileExists('requirements.txt') || fileExists('pyproject.toml')) {
         return 'pip'
     }
-    error 'No Python dependency file found. Looked for uv.lock, poetry.lock, Pipfile, requirements.txt and pyproject.toml.'
+    echo 'WARNING: no dependency file found (uv.lock, poetry.lock, Pipfile, requirements.txt, pyproject.toml). ' +
+     'Treating this as a standard-library-only app.'
+    return 'none'
 }
 
 // Returns the command to run `name`: the agent's own copy if it has one,

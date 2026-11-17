@@ -1,6 +1,8 @@
 services:
   jenkins:
-      image: jenkins/jenkins
+      build: .
+      restart: unless-stopped   # Jenkins "restart" exits the JVM; this brings the container back
+      user: root
       ports:
         - 50000:50000
         - 8080:8080
