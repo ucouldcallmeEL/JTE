@@ -24,6 +24,9 @@ void call(String name, Closure body) {
 
         String skipReason = env.DEVFLOW_STAGE_SKIPPED
         if (skipReason) {
+            // The DevFlow build page reads this line from the console log to
+            // show the stage as skipped (until send_status reports it).
+            echo "[DevFlow] Stage skipped: ${skipReason}"
             send_status(name, 'skipped', skipReason)
         } else {
             send_status(name, 'success')
