@@ -24,6 +24,12 @@ void call() {
     env.PYTHON_PACKAGE_MANAGER = manager
     echo "Installing Python dependencies with ${manager}"
 
+    // Always start from a fresh .venv. One left by an earlier build can be
+    // broken: its scripts (pip, pytest, ...) start with the absolute path of
+    // the venv's python, which stops existing when Jenkins renames the job
+    // and moves its workspace ("not found", exit code 127).
+    sh 'rm -rf .venv'
+
     switch (manager) {
         case 'uv':
             String uv = python_tool('uv', config.uv_version ?: '0.7.10')
@@ -52,12 +58,12 @@ void call() {
         case 'pip':
             sh 'python3 -m venv .venv'
             if (fileExists('requirements.txt')) {
-                sh '.venv/bin/pip install -r requirements.txt'
+                sh '.venv/bin/python -m pip install -r requirements.txt'
                 if (fileExists('requirements-dev.txt')) {
-                    sh '.venv/bin/pip install -r requirements-dev.txt'
+                    sh '.venv/bin/python -m pip install -r requirements-dev.txt'
                 }
             } else {
-                sh '.venv/bin/pip install .'
+                sh '.venv/bin/python -m pip install .'
             }
             env.PYTHON_RUN = '.venv/bin/python -m'
             break
