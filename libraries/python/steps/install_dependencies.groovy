@@ -10,12 +10,14 @@
     pyproject.toml only     pip install .
     none                    error, naming the files looked for
 
-  A missing uv/poetry/pipenv is installed at the pinned config version into
-  a tools venv in the workspace's tmp dir, never into the project's .venv.
+  uv/poetry/pipenv come from python_tool: the agent's copy, else the pinned
+  config version in a tools venv, never in the project's .venv.
 
   Sets: env.PYTHON_PACKAGE_MANAGER  "uv" | "poetry" | "pipenv" | "pip"
         env.PYTHON_RUN              prefix lint/unit_test put before a tool,
                                     e.g. sh "${env.PYTHON_RUN} pytest"
+        env.PYTHON_PIP              pip command that installs into .venv,
+                                    e.g. sh "${env.PYTHON_PIP} install pytest"
 */
 void call() {
     String manager = config.package_manager ?: detect_package_manager()
@@ -24,13 +26,14 @@ void call() {
 
     switch (manager) {
         case 'uv':
-            String uv = resolve_tool('uv', config.uv_version ?: '0.7.10')
+            String uv = python_tool('uv', config.uv_version ?: '0.7.10')
             sh "${uv} sync --locked"
             env.PYTHON_RUN = "${uv} run"
+            env.PYTHON_PIP = "${uv} pip"    // uv venvs have no pip of their own
             break
 
         case 'poetry':
-            String poetry = resolve_tool('poetry', config.poetry_version ?: '1.8.3')
+            String poetry = python_tool('poetry', config.poetry_version ?: '1.8.3')
             withEnv(['POETRY_VIRTUALENVS_IN_PROJECT=true']) {
                 sh "${poetry} install --no-interaction"
             }
@@ -38,7 +41,7 @@ void call() {
             break
 
         case 'pipenv':
-            String pipenv = resolve_tool('pipenv', config.pipenv_version ?: '2024.0.1')
+            String pipenv = python_tool('pipenv', config.pipenv_version ?: '2024.0.1')
             String install = fileExists('Pipfile.lock') ? 'sync --dev' : 'install --dev'
             withEnv(['PIPENV_VENV_IN_PROJECT=1']) {
                 sh "${pipenv} ${install}"
@@ -63,6 +66,9 @@ void call() {
             env.PYTHON_RUN = '.venv/bin/python -m'
             break
     }
+    if (!env.PYTHON_PIP) {
+        env.PYTHON_PIP = '.venv/bin/python -m pip'
+    }
 }
 
 String detect_package_manager() {
@@ -81,26 +87,4 @@ String detect_package_manager() {
     echo 'WARNING: no dependency file found (uv.lock, poetry.lock, Pipfile, requirements.txt, pyproject.toml). ' +
      'Treating this as a standard-library-only app.'
     return 'none'
-}
-
-// Returns the command to run `name`: the agent's own copy if it has one,
-// otherwise a pinned copy installed into a tools venv outside the repo.
-String resolve_tool(String name, String version) {
-    if (sh(script: "command -v ${name} > /dev/null", returnStatus: true) == 0) {
-        return name
-    }
-
-    String toolsDir = "${pwd(tmp: true)}/python-tools"
-    echo "${name} isn't installed on the agent; installing ${name}==${version}"
-    int status = sh(
-        script: """
-            python3 -m venv "${toolsDir}"
-            "${toolsDir}/bin/pip" install --quiet ${name}==${version}
-        """,
-        returnStatus: true
-    )
-    if (status != 0) {
-        error "${name} isn't installed on the agent and installing ${name}==${version} failed."
-    }
-    return "\"${toolsDir}/bin/${name}\""
 }

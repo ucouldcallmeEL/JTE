@@ -34,9 +34,21 @@ node {
     devflow_stage('Checkout') {
         env.GIT_COMMIT = git_checkout().GIT_COMMIT
     }
+    devflow_stage('Lint') {
+        lint()
+    }
     devflow_stage('Build') {
         install_dependencies()
         sh 'echo "manager=$PYTHON_PACKAGE_MANAGER run=$PYTHON_RUN"; ls .venv/bin | head'   // debug, remove later
     }
-    // Test / Security Scan / Package / Deploy: turned off until those steps exist
+    devflow_stage('Test') {
+        unit_test()
+    }
+    // TODO Security Scan (semgrep_scan, trivy_fs_scan) goes here, before Package
+    devflow_stage('Package') {
+        registry_login {        // Docker Hub for now; gcp's Artifact Registry later
+            package_image()
+        }
+    }
+    // TODO Deploy: run the image as a container on GCP once the account exists
 }

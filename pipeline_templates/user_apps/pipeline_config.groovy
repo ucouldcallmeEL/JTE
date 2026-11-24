@@ -9,6 +9,10 @@
     DEVFLOW_PROJECT_ID  projects.id
     DEVFLOW_RUN_ID      pipeline_runs.id that stage/scan reports belong to
     DEVFLOW_MODULES     comma-separated add-ons, e.g. "postgres,redis"
+    START_COMMAND       optional: how the container starts the app, e.g.
+                        "uvicorn main:app --host 0.0.0.0 --port $PORT"
+                        (default: the repo's Procfile web: line, main.py, app.py)
+    PORT                optional: port the app listens on (default 8000)
 */
 
 @merge libraries {
@@ -16,6 +20,10 @@
     devflow_api {
         api_url = 'https://api.devflow.example'     // TODO
         token_credentials_id = 'devflow-api-token'
+    }
+    dockerhub {                                     // temporary, until GCP's Artifact Registry
+        credentials_id = 'dockerhub-credentials'
+        repository = 'malakwagdy/devflow'
     }
     semgrep
     trivy {
@@ -33,4 +41,5 @@ template_methods {
     install_dependencies
     lint
     unit_test
+    prepare_dockerfile      // default Dockerfile for repos without one
 }
