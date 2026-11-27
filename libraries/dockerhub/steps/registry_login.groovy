@@ -3,7 +3,11 @@
   The login lives in a docker config dir of this build's own, deleted
   afterwards, so the token doesn't stay on the agent.
 
-      registry_login { package_image() }
+      registry_login {
+          build_image()
+          trivy_image_scan()
+          push_image()
+      }
 
   Sets: env.IMAGE_REPOSITORY = "docker.io/<repository>"  if config.repository
         env.REGISTRY         = "docker.io/<namespace>"   if config.namespace

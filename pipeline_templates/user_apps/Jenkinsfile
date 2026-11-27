@@ -1,7 +1,7 @@
 // /*
 //   Template for every user app. The child tier (go, node, python, dockerfile)
 //   decides which libraries implement install_dependencies/lint/unit_test
-//   and package_image.
+//   and build_image/push_image.
 // */
 // node {
 //     devflow_stage('Checkout') {
@@ -21,8 +21,9 @@
 //     devflow_stage('Package') {
 //         gcp_auth()
 //         artifact_registry_login('user-apps')
-//         package_image()
-//         trivy_image_scan()
+//         build_image()
+//         trivy_image_scan()   // gate: nothing is pushed unless this passes
+//         push_image()
 //     }
 //     devflow_stage('Deploy') {
 //         helm_lint()
@@ -47,7 +48,8 @@ node {
     // TODO Security Scan (semgrep_scan, trivy_fs_scan) goes here, before Package
     devflow_stage('Package') {
         registry_login {        // Docker Hub for now; gcp's Artifact Registry later
-            package_image()
+            build_image()
+            push_image()
         }
     }
     // TODO Deploy: run the image as a container on GCP once the account exists

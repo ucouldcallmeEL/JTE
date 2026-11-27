@@ -1,7 +1,7 @@
 /*
   prepare_dockerfile (Python): the default Dockerfile for Python apps that
   don't have their own (resources/Dockerfile), written to the workspace's
-  tmp dir, plus the build args package_image passes to it.
+  tmp dir, plus the build args build_image passes to it.
 
     PYTHON_VERSION   .python-version, else config.python_version, else 3.12
     PACKAGE_MANAGER  env.PYTHON_PACKAGE_MANAGER (install_dependencies)

@@ -1,8 +1,8 @@
 # Default image for Python apps that don't bring their own Dockerfile.
-# prepare_dockerfile writes this out and package_image passes the build args.
+# prepare_dockerfile writes this out and build_image passes the build args.
 # Dependencies are installed here, inside the image, from the same lockfile
 # the pipeline's Build stage used: nothing is copied from the Jenkins
-# workspace's .venv (package_image's .dockerignore excludes it).
+# workspace's .venv (build_image's .dockerignore excludes it).
 
 ARG PYTHON_VERSION=3.12
 FROM python:${PYTHON_VERSION}-slim

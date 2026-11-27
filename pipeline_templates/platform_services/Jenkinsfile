@@ -29,8 +29,8 @@ node {
         stage('Package') {
             gcp_auth()
             artifact_registry_login('platform')
-            package_image()
-            trivy_image_scan()
+            build_image()
+            push_image()
         }
         if (env.BRANCH_NAME == 'main') {
             stage('Deploy') {
