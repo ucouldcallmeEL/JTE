@@ -30,6 +30,7 @@ node {
             gcp_auth()
             artifact_registry_login('platform')
             build_image()
+            trivy_image_scan()   // gate: nothing is pushed unless this passes
             push_image()
         }
         if (env.BRANCH_NAME == 'main') {

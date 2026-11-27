@@ -9,5 +9,8 @@ services:
       volumes:
         - jenkins_home:/var/jenkins_home
         - /var/run/docker.sock:/var/run/docker.sock
+      environment:
+        - TRIVY_CACHE_DIR=/var/jenkins_home/.cache/trivy
+
 volumes:
   jenkins_home:

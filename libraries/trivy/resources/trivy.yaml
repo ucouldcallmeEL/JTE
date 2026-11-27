@@ -1,0 +1,19 @@
+# DevFlow central Trivy policy. trivy_fs_scan / trivy_image_scan write this into
+# the workspace and pass it with --config, so a trivy.yaml in an app repo is not used.
+# Per-app exceptions go in the app repo's .trivyignore(.yaml), with a reason.
+#
+# Trivy maps license categories to severities: forbidden = CRITICAL,
+# restricted = HIGH. Scans gate on HIGH,CRITICAL, so only the licenses
+# listed here fail a build.
+license:
+  # Replaces Trivy's default forbidden list.
+  forbidden:
+    - GPL-3.0
+    - GPL-3.0-only
+    - GPL-3.0-or-later
+    - AGPL-3.0
+    - AGPL-3.0-only
+    - AGPL-3.0-or-later
+  # Emptied on purpose: Trivy's default puts GPL-2.0 and the LGPL family here,
+  # which would fail builds on licenses we allow.
+  restricted: []
