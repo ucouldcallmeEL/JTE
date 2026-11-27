@@ -48,7 +48,8 @@ node {
     }
     devflow_stage('Security Scan') {
         gitleaks_scan()
-        trivy_fs_scan()     // TODO semgrep_scan here too
+        semgrep_scan()
+        trivy_fs_scan()
     }
     devflow_stage('Package') {
         registry_login {        // Docker Hub for now; gcp's Artifact Registry later

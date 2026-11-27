@@ -27,4 +27,11 @@ RUN set -eu; \
     tar -xzf "${file}" -C /usr/local/bin gitleaks; \
     rm -f "${file}"; \
     gitleaks version
+# Semgrep: in its own venv (Debian blocks pip installs into the system Python).
+# Rules come from libraries/semgrep/resources/rules, not from semgrep.dev.
+ARG SEMGREP_VERSION=1.100.0
+RUN python3 -m venv /opt/semgrep \
+    && /opt/semgrep/bin/pip install --no-cache-dir "semgrep==${SEMGREP_VERSION}" \
+    && ln -s /opt/semgrep/bin/semgrep /usr/local/bin/semgrep \
+    && semgrep --version
 USER jenkins
