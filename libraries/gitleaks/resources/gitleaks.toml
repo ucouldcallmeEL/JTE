@@ -1,0 +1,13 @@
+# DevFlow central Gitleaks config. gitleaks_scan writes it to the build's tmp
+# dir and passes it with --config, so a .gitleaks.toml in an app repo is not used.
+# Per-app exceptions go in the app repo's .gitleaksignore.
+#
+# Changing this file makes every job's next build rescan its full history
+# with the new rules (gitleaks_scan compares a hash of it).
+
+title = "DevFlow"
+
+# Keep Gitleaks' built-in rules (cloud keys, tokens, private keys...);
+# DevFlow's own rules and allowlists go below.
+[extend]
+useDefault = true

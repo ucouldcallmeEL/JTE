@@ -15,6 +15,7 @@
 //         unit_test()
 //     }
 //     devflow_stage('Security Scan') {
+//         gitleaks_scan()
 //         semgrep_scan()
 //         trivy_fs_scan()
 //     }
@@ -46,6 +47,7 @@ node {
         unit_test()
     }
     devflow_stage('Security Scan') {
+        gitleaks_scan()
         trivy_fs_scan()     // TODO semgrep_scan here too
     }
     devflow_stage('Package') {

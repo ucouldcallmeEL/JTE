@@ -33,6 +33,9 @@
         repository = 'malakwagdy/devflow'
     }
     semgrep
+    gitleaks {
+        fail_on_findings = true
+    }
     trivy {
         severity = 'HIGH,CRITICAL'
         fail_on_findings = true
